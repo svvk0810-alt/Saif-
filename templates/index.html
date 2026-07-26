@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <title>SAIF Downloader</title>
+
+    <style>
+        body {
+            font-family: Arial;
+            background: #111;
+            color: white;
+            text-align: center;
+            padding: 30px;
+        }
+
+        .box {
+            background: #222;
+            padding: 25px;
+            border-radius: 15px;
+            max-width: 700px;
+            margin: auto;
+        }
+
+        input {
+            width: 90%;
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+        }
+
+        button, a {
+            display: inline-block;
+            margin: 8px;
+            padding: 12px 20px;
+            background: #ff6600;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+        }
+
+        img {
+            max-width: 100%;
+            border-radius: 10px;
+        }
+
+        .quality {
+            margin-top: 20px;
+        }
+    </style>
+
+</head>
+
+<body>
+
+
+<div class="box">
+
+<h1>🎬 SAIF Downloader</h1>
+
+
+<form method="POST">
+
+<input 
+type="text"
+name="url"
+placeholder="ضع رابط الفيديو هنا"
+required>
+
+<br>
+
+<button type="submit">
+🔍 استخراج الفيديو
+</button>
+
+</form>
+
+
+{% if error %}
+
+<h3>{{ error }}</h3>
+
+{% endif %}
+
+
+
+{% if info %}
+
+<hr>
+
+<h2>
+{{ info.title }}
+</h2>
+
+
+{% if info.thumbnail %}
+
+<img src="{{ info.thumbnail }}">
+
+{% endif %}
+
+
+<p>
+⏱️ المدة:
+{{ info.duration }}
+</p>
+
+
+
+<h3>
+اختر الجودة:
+</h3>
+
+
+<div class="quality">
+
+{% for q in formats %}
+
+<a href="/download/{{ video_id }}/{{ q.id }}">
+{{ q.text }}
+</a>
+
+{% endfor %}
+
+</div>
+
+
+{% endif %}
+
+
+</div>
+
+
+</body>
+</html>
