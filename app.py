@@ -1,79 +1,79 @@
-from telegram.ext import (
-    Application,
-    CommandHandler,
-    MessageHandler,
-    CallbackQueryHandler,
-    filters,
-)
+from flask import Flask, render_template, request, send_file
+from downloader import VideoDownloader
+import os
 
-from config import BOT_TOKEN
-from database import setup
+app = Flask(__name__)
 
-from handlers import (
-    start,
-    receive_link,
-    button_callback,
-)
+downloader = VideoDownloader()
+
+VIDEOS = {}
 
 
-def main():
+@app.route("/", methods=["GET", "POST"])
+def index():
 
-    # إنشاء قاعدة البيانات
-    setup()
+    if request.method == "POST":
+
+        url = request.form.get("url")
+
+        if not url:
+            return render_template(
+                "index.html",
+                error="❌ ضع رابط الفيديو"
+            )
+
+        try:
+            info, formats = downloader.qualities(url)
+
+            video_id = str(len(VIDEOS))
+
+            VIDEOS[video_id] = {
+                "url": url,
+                "formats": formats
+            }
+
+            return render_template(
+                "index.html",
+                info=info,
+                formats=formats,
+                video_id=video_id
+            )
+
+        except Exception as e:
+
+            return render_template(
+                "index.html",
+                error=f"❌ {e}"
+            )
 
 
-    # إنشاء التطبيق مع مهلات اتصال أكبر
-    app = (
-        Application.builder()
-        .token(BOT_TOKEN)
-        .connect_timeout(60)
-        .read_timeout(60)
-        .write_timeout(60)
-        .pool_timeout(60)
-        .build()
-    )
+    return render_template("index.html")
 
 
-    # أمر /start
-    app.add_handler(
-        CommandHandler(
-            "start",
-            start
+@app.route("/download/<video_id>/<format_id>")
+def download(video_id, format_id):
+
+    try:
+
+        data = VIDEOS[video_id]
+
+        result = downloader.download_video(
+            data["url"],
+            format_id
         )
-    )
 
-
-    # أزرار الجودة
-    app.add_handler(
-        CallbackQueryHandler(
-            button_callback
+        return send_file(
+            result["file"],
+            as_attachment=True
         )
-    )
 
+    except Exception as e:
 
-    # استقبال الروابط
-    app.add_handler(
-        MessageHandler(
-            filters.TEXT & ~filters.COMMAND,
-            receive_link
-        )
-    )
-
-
-    print("====================================")
-    print("Bot Started Successfully")
-    print("====================================")
-
-
-    # تشغيل البوت
-    app.run_polling(
-        allowed_updates=[
-            "message",
-            "callback_query"
-        ]
-    )
-
+        return f"❌ خطأ: {e}"
 
 
 if __name__ == "__main__":
-    main()
+    app.run(
+        host="0.0.0.0",
+        port=8080
+    )

@@ -103,36 +103,20 @@ class VideoDownloader:
             "%(title)s.%(ext)s"
         )
 
-
         opts = self.base_opts.copy()
-
 
         opts.update({
 
-            "format":
-            f"{format_id}+bestaudio/best",
+            "format": f"{format_id}+bestaudio/best",
 
-            "merge_output_format":
-            "mp4",
+            "merge_output_format": "mp4",
 
-            "outtmpl":
-            output,
-
-            "writethumbnail": True,
-
-            "postprocessors": [
-                {
-                    "key": "FFmpegThumbnailsConvertor",
-                    "format": "jpg"
-                }
-            ],
+            "outtmpl": output,
 
             "progress_hooks":
-            [
-                progress_hook
-            ]
-            if progress_hook
-            else []
+                [progress_hook]
+                if progress_hook
+                else []
 
         })
 
@@ -147,35 +131,37 @@ class VideoDownloader:
 
             filename = ydl.prepare_filename(info)
 
+
             root = os.path.splitext(filename)[0]
 
-            mp4 = root + ".mp4"
+
+            mp4_file = root + ".mp4"
 
 
-            thumbnail = None
 
+            if os.path.exists(mp4_file):
 
-            for ext in [
-                "jpg",
-                "webp",
-                "png"
-            ]:
+                return {
+                    "file": mp4_file,
+                    "title": info.get(
+                        "title",
+                        "Video"
+                    ),
+                    "thumbnail": info.get(
+                        "thumbnail"
+                    )
+                }
 
-                thumb = root + "." + ext
-
-                if os.path.exists(thumb):
-
-                    thumbnail = thumb
-
-                    break
 
 
             return {
-                "file": mp4,
-                "thumbnail": thumbnail,
+                "file": filename,
                 "title": info.get(
                     "title",
-                    "فيديو"
+                    "Video"
+                ),
+                "thumbnail": info.get(
+                    "thumbnail"
                 )
             }
 
