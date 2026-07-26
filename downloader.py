@@ -113,6 +113,14 @@ class VideoDownloader:
 
             "outtmpl": output,
 
+            # دمج الفيديو والصوت باستعمال ffmpeg
+            "postprocessors": [
+                {
+                    "key": "FFmpegVideoConvertor",
+                    "preferedformat": "mp4"
+                }
+            ],
+
             "progress_hooks":
                 [progress_hook]
                 if progress_hook
