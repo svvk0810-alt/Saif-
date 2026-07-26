@@ -70,7 +70,7 @@ class VideoDownloader:
 
             formats.append({
 
-                "id": f["format_id"],
+                "id": height,
                 "text": f"🎥 {height}p"
 
             })
@@ -107,19 +107,9 @@ class VideoDownloader:
 
         opts.update({
 
-            "format": f"{format_id}+bestaudio/best",
-
-            "merge_output_format": "mp4",
+            "format": f"best[height<={format_id}][ext=mp4]/best",
 
             "outtmpl": output,
-
-            # دمج الفيديو والصوت باستعمال ffmpeg
-            "postprocessors": [
-                {
-                    "key": "FFmpegVideoConvertor",
-                    "preferedformat": "mp4"
-                }
-            ],
 
             "progress_hooks":
                 [progress_hook]
